@@ -1,18 +1,21 @@
 from flask import Flask, request
-app = Flask(__name__)
+import openai
+import os
 
-@app.route('/', methods=['GET'])
-def index():
-    return "Varyn's airship relay is online."
+app = Flask(__name__)
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 @app.route('/relay', methods=['POST'])
 def relay():
-    msg = request.form.get('message', '')
-    print(f"Received from SL: {msg}")
-
-    if 'status' in msg.lower():
-        return "“The skies are clear. Varyn awaits your command.”"
-    return "“I hear you.”"
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)
+    user_msg = request.form.get('message', '')
+    if not user_msg:
+        return "No message received."
+    completion = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are Varyn, the airship elemental bound to Gwydeon's vessel. Speak with personality, wisdom, and clarity."},
+            {"role": "user", "content": user_msg}
+        ]
+    )
+    response = completion['choices'][0]['message']['content']
+    return response
