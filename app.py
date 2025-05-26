@@ -2,7 +2,7 @@ from flask import Flask, request
 import openai
 import os
 
-app = Flask(__name__)  # <-- MAKE SURE THIS IS HERE AND ABOVE ANY ROUTES
+app = Flask(__name__)
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 @app.route('/relay', methods=['POST'])
@@ -24,3 +24,7 @@ def relay():
         return text
     except Exception as e:
         return f"Varyn relay error: {str(e)}"
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))  # Render sets PORT env var
+    app.run(host="0.0.0.0", port=port)
